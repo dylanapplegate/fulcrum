@@ -1,0 +1,48 @@
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    # Coolify resource limits are crucial here as per the PRD
+    deploy:
+      resources:
+        limits:
+          cpus: '2.5'
+          memory: 4G
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main
+    container_name: litellm
+    restart: unless-stopped
+    environment:
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY} # Set in Coolify
+    command: ["--model", "ollama/mistral:latest", "--api_base", "http://ollama:11434", "--host", "0.0.0.0"]
+    depends_on:
+      - ollama
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.litellm.rule=Host(`openai.yourdomain.com`)"
+      - "traefik.http.services.litellm.loadbalancer.server.port=4000"
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: unless-stopped
+    volumes:
+      - open_webui_data:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    depends_on:
+      - ollama
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.open-webui.rule=Host(`chat.yourdomain.com`)"
+      - "traefik.http.services.open-webui.loadbalancer.server.port=8080"
+      # ForwardAuth protection
+      - "traefik.http.routers.open-webui.middlewares=forward-auth"
+
+volumes:
+  ollama_data:
+  open_webui_data:

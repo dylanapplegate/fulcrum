@@ -1,0 +1,50 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Find changed applications
+        id: changed-apps
+        # In a real scenario, you would use a more robust script 
+        # (e.g., using `pnpm ls -r --depth=-1 --json`) to find changes.
+        # This is a simplified placeholder.
+        run: |
+          echo "This is a placeholder for change detection."
+          echo "changed_apps=app1,app2" >> $GITHUB_OUTPUT
+
+      - name: Build and Push Docker Images
+        # This step would iterate through {{ steps.changed-apps.outputs.changed_apps }}
+        # and run `docker build` and `docker push` for each one.
+        run: |
+          echo "Building and pushing images for: ${{ steps.changed-apps.outputs.changed_apps }}"
+
+      - name: Trigger Coolify Deploy Hooks
+        # This step would iterate through the changed apps and send a POST
+        # request to the corresponding Coolify deploy webhook.
+        run: |
+          echo "Triggering Coolify deploy hooks..."

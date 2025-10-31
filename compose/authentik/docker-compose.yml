@@ -1,0 +1,25 @@
+services:
+  authentik:
+    image: ghcr.io/goauthentik/server:latest
+    container_name: authentik
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+    volumes:
+      - authentik_data:/data
+      - authentik_blueprints:/blueprints
+    environment:
+      - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY} # Set in Coolify
+      - AUTHENTIK_POSTGRESQL__HOST=coolify-postgres
+      - AUTHENTIK_POSTGRESQL__USER=postgres
+      - AUTHENTIK_POSTGRESQL__NAME=${POSTGRES_DB} # From Coolify
+      - AUTHENTIK_POSTGRESQL__PASSWORD=${POSTGRES_PASSWORD} # From Coolify
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authentik.rule=Host(`auth.yourdomain.com`)"
+      - "traefik.http.services.authentik.loadbalancer.server.port=9000"
+
+volumes:
+  authentik_data:
+  authentik_blueprints:

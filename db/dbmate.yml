@@ -1,0 +1,6 @@
+schema_file: /db/schema.sql
+migrations_dir: /db/migrations
+
+database:
+    driver: postgres
+    url: postgresql://user:password@localhost:5432/app_db?sslmode=disable

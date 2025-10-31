@@ -1,0 +1,13 @@
+{
+  "name": "fulcrum-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Fulcrum platform monorepo",
+  "scripts": {
+    "dev": "just dev",
+    "build": "just build",
+    "test": "just test"
+  },
+  "author": "",
+  "license": "MIT"
+}

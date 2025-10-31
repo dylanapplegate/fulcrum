@@ -1,0 +1,46 @@
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dozzle.rule=Host(`logs.yourdomain.com`)"
+      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
+      # ForwardAuth protection
+      - "traefik.http.routers.dozzle.middlewares=forward-auth"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    restart: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cadvisor.rule=Host(`metrics.yourdomain.com`)"
+      - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
+      # ForwardAuth protection
+      - "traefik.http.routers.cadvisor.middlewares=forward-auth"
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: unless-stopped
+    volumes:
+      - uptime_kuma_data:/app/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.uptime-kuma.rule=Host(`status.yourdomain.com`)"
+      - "traefik.http.services.uptime-kuma.loadbalancer.server.port=3001"
+      # ForwardAuth protection
+      - "traefik.http.routers.uptime-kuma.middlewares=forward-auth"
+
+volumes:
+  uptime_kuma_data:

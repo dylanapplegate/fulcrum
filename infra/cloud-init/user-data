@@ -1,0 +1,11 @@
+#cloud-config
+# This file is used to provision the VPS on first boot.
+# It can be used to set up users, install packages, and run initial scripts.
+
+users:
+  - name: dylanapplegate
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - # Add your public SSH key here

@@ -1,0 +1,11 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install base packages
+      apt:
+        name: ["curl", "git", "ufw"]
+        state: present
+
+    - name: Install Docker
+      # Add Docker installation tasks here
